@@ -1,0 +1,22 @@
+package com.example.filmliburan.Data.Source.Local;
+
+import android.database.Cursor;
+import android.net.Uri;
+import android.provider.BaseColumns;
+
+public class DatabaseContract {
+    //    public static final String AUTHORITY= "com.example.filmliburan";
+//    public static final String SCHEME= "content";
+    public static String TABLE_MOVIE = "movie";
+    public static String TABLE_TVSHOW = "tvshow";
+
+    public static final class FavoriteColumn implements BaseColumns {
+        public static String JUDUL = "judul";
+        public static String DESKRIPSI = "deskripsi";
+        public static String GAMBARPOPULE = "gambar_populer";
+        public static String POPULER = "populer";
+        public static String ORIGINALLANGUAGE = "original_language";
+        public static String GENRE = "genre";
+        public static String RELEASEDATE = "release_date";
+    }
+}
