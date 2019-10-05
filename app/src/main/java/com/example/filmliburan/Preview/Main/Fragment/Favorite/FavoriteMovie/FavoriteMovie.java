@@ -15,10 +15,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.filmliburan.Data.Model.Movie;
@@ -40,6 +42,7 @@ public class FavoriteMovie extends Fragment implements LoadfavoriteCallback {
 //    private DataObserver observer;
     private static final String EXTRA_STATE= "EXTRA_STATE";
     private ProgressBar progressBar;
+    TextView textKosong;
     View view;
 
 
@@ -55,17 +58,22 @@ public class FavoriteMovie extends Fragment implements LoadfavoriteCallback {
         view=inflater.inflate(R.layout.fragment_favorite_movie, container, false);
         recyclerView= view.findViewById(R.id.recycler_favorite_movie);
         progressBar= view.findViewById(R.id.progressMovie);
+        textKosong= view.findViewById(R.id.text_kosong);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setHasFixedSize(true);
+        favoriteMovieAdapter= new FavoriteMovieAdapter(getActivity());
+        favoriteMovieAdapter.getListMovie();
+        recyclerView.setAdapter(favoriteMovieAdapter);
         favoriteHelper= FavoriteHelper.getInstace(getContext().getApplicationContext());
         favoriteHelper.open();
         if(savedInstanceState==null){
             new LoadfavoriteAsnyc(favoriteHelper,this).execute();
         }
         else{
-//            ArrayList<Movie> list= savedInstanceState.getParcelableArrayList(EXTRA_STATE);
-//            favoriteMovieAdapter.setListMovie(list);
-            new LoadfavoriteAsnyc(favoriteHelper,this).execute();
+            ArrayList<Movie> list= savedInstanceState.getParcelableArrayList(EXTRA_STATE);
+            if(list!=null) {
+                favoriteMovieAdapter.setListMovie(list);
+            }
         }
         return view;
     }
@@ -73,35 +81,45 @@ public class FavoriteMovie extends Fragment implements LoadfavoriteCallback {
     @Override
     public void onStart() {
         super.onStart();
-        favoriteMovieAdapter= new FavoriteMovieAdapter(getActivity());
-        favoriteMovieAdapter.getListMovie();
-        recyclerView.setAdapter(favoriteMovieAdapter);
-        favoriteMovieAdapter.notifyDataSetChanged();
-        new LoadfavoriteAsnyc(favoriteHelper,this).execute();
         IntentToDetail();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        favoriteHelper.close();
     }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList(EXTRA_STATE, favoriteMovieAdapter.getListMovie());
+        if(outState!=null) {
+            outState.putParcelableArrayList(EXTRA_STATE, favoriteMovieAdapter.getListMovie());
+        }
     }
 
     @Override
     public void preExecute() {
-        Toast.makeText(getContext(), "Sumendra", Toast.LENGTH_SHORT).show();
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 progressBar.setVisibility(View.VISIBLE);
             }
         });
+        Log.d("FavoriteMovie", "preExecute: ");
     }
 
     @Override
     public void postExecute(ArrayList<Movie> movie) {
         progressBar.setVisibility(View.INVISIBLE);
         favoriteMovieAdapter.setListMovie(movie);
+        if(movie.size()==0){
+            textKosong.setVisibility(View.VISIBLE);
+        }
+        else{
+            textKosong.setVisibility(View.GONE);
+        }
+        Log.d("FavoriteMovie", "postExecute: ");
     }
 
     private static class LoadfavoriteAsnyc extends AsyncTask<Void, Void, ArrayList<Movie>>{

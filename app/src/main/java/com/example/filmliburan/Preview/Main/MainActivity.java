@@ -23,14 +23,36 @@ public class MainActivity extends AppCompatActivity {
     private TvShowFragment tvShowFragment;
     private FavoriteFragment favoriteFragment;
     private BottomNavigationView bottomNavigationView;
+    private Fragment fragment= new MoviesFragment();
+    public static final String KEY_FRAGMENT = "fragment";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initial();
-        tabFragment();
-        if (savedInstanceState == null) {
-            bottomNavigationView.setSelectedItemId(R.id.movies); // change to whichever id should be default
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                switch (menuItem.getItemId()){
+                    case R.id.movies:
+                        fragment= new MoviesFragment();
+                        break;
+                    case R.id.tv_show:
+                        fragment= new TvShowFragment();
+                        break;
+                    case R.id.favorite:
+                        fragment= new FavoriteFragment();
+                        break;
+                }
+                getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout, fragment).commit();
+                return true;
+            }
+        });
+        if (savedInstanceState == null) getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout, fragment).commit();
+        else {
+            fragment = getSupportFragmentManager().getFragment(savedInstanceState, KEY_FRAGMENT);
+            getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout, fragment).commit();
         }
     }
 
@@ -40,25 +62,11 @@ public class MainActivity extends AppCompatActivity {
         favoriteFragment= new FavoriteFragment();
         bottomNavigationView= findViewById(R.id.menu_buttom_main);
     }
-    private void tabFragment(){
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                switch (menuItem.getItemId()){
-                    case R.id.movies:
-                        setFragment(movieFragment);
-                        return true;
-                    case R.id.tv_show:
-                        setFragment(tvShowFragment);
-                        return true;
-                    case R.id.favorite:
-                        setFragment(favoriteFragment);
-                        return true;
-                    default:
-                        return false;
-                }
-            }
-        });
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        getSupportFragmentManager().putFragment(outState, KEY_FRAGMENT, fragment);
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -85,16 +93,4 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.commit();
     }
 
-//    private void profilViewPager() {
-//        PagerAdapter adapter = new PagerAdapter(getSupportFragmentManager());
-//        adapter.addFragment(new MoviesFragment()); // index 2
-//        adapter.addFragment(new TvShowFragment()); //index 1
-//        ViewPager viewPager = (ViewPager) findViewById(R.id.profil_viewPager);
-//        viewPager.setAdapter(adapter);
-//
-//        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabsProfil);
-//        tabLayout.setupWithViewPager(viewPager);
-//        tabLayout.getTabAt(1).setText(getString(R.string.movies));
-//        tabLayout.getTabAt(0).setText(getString(R.string.tvshow));
-//    }
 }

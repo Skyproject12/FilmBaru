@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.example.filmliburan.Data.Model.Movie;
 import com.example.filmliburan.Data.Model.TvShow;
@@ -38,6 +39,7 @@ public class FavoriteTvshow extends Fragment implements LoadTvShowCallback {
     FavoriteHelper favoriteHelper;
     FavoriteTvshowAdapter favoriteTvmovieAdapter;
     private static final String EXTRA_STATE= "EXTRA_STATE";
+    TextView textKosong;
 
 
     public FavoriteTvshow() {
@@ -54,6 +56,7 @@ public class FavoriteTvshow extends Fragment implements LoadTvShowCallback {
         progressBar= view.findViewById(R.id.progressTvshow);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setHasFixedSize(true);
+        textKosong= view.findViewById(R.id.text_kosong);
         favoriteHelper= FavoriteHelper.getInstace(getContext().getApplicationContext());
         favoriteHelper.open();
         favoriteTvmovieAdapter= new FavoriteTvshowAdapter(getActivity());
@@ -63,7 +66,9 @@ public class FavoriteTvshow extends Fragment implements LoadTvShowCallback {
         }
         else{
             ArrayList<TvShow> list= savedInstanceState.getParcelableArrayList(EXTRA_STATE);
-            favoriteTvmovieAdapter.setListTvShow(list);
+            if(list!=null) {
+                favoriteTvmovieAdapter.setListTvShow(list);
+            }
         }
         IntentToDetail();
         return view;
@@ -72,7 +77,9 @@ public class FavoriteTvshow extends Fragment implements LoadTvShowCallback {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList(EXTRA_STATE, favoriteTvmovieAdapter.getListMovie());
+        if(outState!=null) {
+            outState.putParcelableArrayList(EXTRA_STATE, favoriteTvmovieAdapter.getListMovie());
+        }
     }
 
     @Override
@@ -89,6 +96,12 @@ public class FavoriteTvshow extends Fragment implements LoadTvShowCallback {
     public void postExecute(ArrayList<TvShow> tvShows) {
         progressBar.setVisibility(View.INVISIBLE);
         favoriteTvmovieAdapter.setListTvShow(tvShows);
+        if(tvShows.size()==0){
+            textKosong.setVisibility(View.VISIBLE);
+        }
+        else{
+            textKosong.setVisibility(View.GONE);
+        }
     }
 
     private static class LoadfavoriteAsnyc extends AsyncTask<Void, Void, ArrayList<TvShow>> {
