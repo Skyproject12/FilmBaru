@@ -3,6 +3,8 @@ package com.example.filmliburan.Preview.Main.Fragment.TvShow;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -14,14 +16,17 @@ import com.example.filmliburan.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class TvshowAdapter extends RecyclerView.Adapter<TvshowAdapter.ViewHolder> {
+public class TvshowAdapter extends RecyclerView.Adapter<TvshowAdapter.ViewHolder> implements Filterable {
 
     ArrayList<TvShow> list= new ArrayList<>();
     private OnItemClickCallback onItemClickCallback;
+    private List<TvShow> listFull;
     public void setItem(ArrayList<TvShow> show){
         list.clear();
         list.addAll(show);
+        listFull= new ArrayList<>(show);
         notifyDataSetChanged();
     }
     public void setOnItemClickCallback(OnItemClickCallback onItemClickCallback){
@@ -49,6 +54,38 @@ public class TvshowAdapter extends RecyclerView.Adapter<TvshowAdapter.ViewHolder
     public int getItemCount() {
         return list.size();
     }
+
+    @Override
+    public Filter getFilter() {
+        return exampleFilter;
+    }
+    private Filter exampleFilter= new Filter() {
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+            List<TvShow> filterList= new ArrayList<>();
+            if(constraint==null || constraint.length()==0){
+                filterList.addAll(listFull);
+            }
+            else {
+                String filterPattern= constraint.toString().toLowerCase().trim();
+                for(TvShow item:listFull){
+                    if(item.getJudul().toLowerCase().contains(filterPattern)){
+                        filterList.add(item);
+                    }
+                }
+            }
+            FilterResults result= new FilterResults();
+            result.values= filterList;
+            return result;
+        }
+
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+            list.clear();
+            list.addAll((List) results.values);
+            notifyDataSetChanged();
+        }
+    };
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         TextView textJudul;

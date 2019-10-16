@@ -4,16 +4,25 @@ package com.example.filmliburan.Preview.Main.Fragment.Movies;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.provider.Settings;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+
 
 import com.example.filmliburan.Data.Model.Movie;
 import com.example.filmliburan.Data.Source.Remote.Movies.MovieViewModel;
@@ -29,9 +38,11 @@ public class MoviesFragment extends Fragment {
 
 
     private MovieAdapter adapter;
+    Toolbar toolbar;
     private ProgressBar progressBar;
     private MovieViewModel movieViewModel;
     View view;
+    MenuItem searchItem;
     public MoviesFragment() {
         // Required empty public constructor
     }
@@ -43,6 +54,10 @@ public class MoviesFragment extends Fragment {
         // Inflate the layout for this fragment
         view= inflater.inflate(R.layout.fragment_movies, container, false);
         progressBar= view.findViewById(R.id.progressBar);
+        toolbar= view.findViewById(R.id.toolbar_movies);
+        ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
+        ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle("Movie");
+        toolbar.setTitleTextColor(getResources().getColor(R.color.colorWhite));
         RecyclerView recyclerView= view.findViewById(R.id.recycler_movie);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         adapter= new MovieAdapter();
@@ -55,9 +70,11 @@ public class MoviesFragment extends Fragment {
         // mengeset nilai movie
         movieViewModel.setMovie();
         getProgress(true);
+        toolbar.setVisibility(View.INVISIBLE);
         // mengambil nilai movie lalu di set ke adapter
         movieViewModel.getMovie().observe(getActivity(), getMovieList);
         IntentToDetail();
+        setHasOptionsMenu(true);
         return view;
     }
 
@@ -68,6 +85,7 @@ public class MoviesFragment extends Fragment {
                 adapter.setItems(movieslist);
                 if(adapter!=null) {
                     getProgress(false);
+                    toolbar.setVisibility(View.VISIBLE);
                 }
             }
         }
@@ -92,6 +110,37 @@ public class MoviesFragment extends Fragment {
                 startActivity(intent);
             }
         });
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        ((AppCompatActivity)getActivity()).getMenuInflater().inflate(R.menu.menu_navigation, menu);
+        searchItem= menu.findItem(R.id.action_search);
+        SearchView searchView= (SearchView) searchItem.getActionView();
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                adapter.getFilter().filter(newText);
+                return false;
+            }
+        });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.setting:
+                Intent intent= new Intent(Settings.ACTION_LOCALE_SETTINGS);
+                startActivity(intent);
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
 }

@@ -1,31 +1,40 @@
 package com.example.filmliburan.Preview.Main.Fragment.Favorite;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.viewpager.widget.ViewPager;
-
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.viewpager.widget.ViewPager;
+
 import com.example.filmliburan.Preview.Main.Fragment.Favorite.FavoriteMovie.FavoriteMovie;
 import com.example.filmliburan.Preview.Main.Fragment.Favorite.FavoriteTvshow.FavoriteTvshow;
-import com.example.filmliburan.Preview.Main.Fragment.Movies.MoviesFragment;
-import com.example.filmliburan.Preview.Main.Fragment.TvShow.TvShowFragment;
 import com.example.filmliburan.R;
 import com.google.android.material.tabs.TabLayout;
 
 public class FavoriteFragment extends Fragment {
 
     View view;
+    Toolbar toolbar;
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view= inflater.inflate(R.layout.fragment_favorite, container, false);
+        toolbar= view.findViewById(R.id.toolbar_favorite);
+        ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
+
+        toolbar.setTitle("Favorite");
+        toolbar.setTitleTextColor(getResources().getColor(R.color.colorWhite));
+
         profilViewPager();
         return view;
     }

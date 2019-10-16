@@ -6,6 +6,10 @@
     android:layout_height="match_parent"
     >
 
+    <include
+        layout="@layout/toolbar"
+        android:id="@+id/toolbar_movies"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_movie"
         android:layout_width="match_parent"
@@ -13,7 +17,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/toolbar_movies" />
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -24,7 +28,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

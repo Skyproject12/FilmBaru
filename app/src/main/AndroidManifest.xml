@@ -16,7 +16,8 @@
         <activity
             android:name=".Preview.Detail.DetailMovieActivity"
             android:parentActivityName=".Preview.Main.MainActivity" />
-        <activity android:name=".Preview.Main.MainActivity">
+        <activity android:name=".Preview.Main.MainActivity"
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
