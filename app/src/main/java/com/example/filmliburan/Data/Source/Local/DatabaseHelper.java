@@ -18,7 +18,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             " %s TEXT NOT NULL, " +
             " %s INTEGER, " +
             " %s TEXT NOT NULL ) " ,
-            DatabaseContract.TABLE_MOVIE,
+            DatabaseContract.FavoriteColumn.TABLE_MOVIE,
             DatabaseContract.FavoriteColumn._ID,
             DatabaseContract.FavoriteColumn.JUDUL,
             DatabaseContract.FavoriteColumn.DESKRIPSI,
@@ -37,7 +37,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     " %s TEXT NOT NULL, " +
                     " %s INTEGER, " +
                     " %s TEXT NOT NULL ) " ,
-            DatabaseContract.TABLE_TVSHOW,
+            DatabaseContract.FavoriteColumn.TABLE_TVSHOW,
             DatabaseContract.FavoriteColumn._ID,
             DatabaseContract.FavoriteColumn.JUDUL,
             DatabaseContract.FavoriteColumn.GAMBARPOPULE,
@@ -60,8 +60,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL(" DROP TABLE IF EXISTS "+DatabaseContract.TABLE_MOVIE);
-        db.execSQL(" DROP TABLE IF EXISTS "+DatabaseContract.TABLE_TVSHOW);
+        db.execSQL(" DROP TABLE IF EXISTS "+DatabaseContract.FavoriteColumn.TABLE_MOVIE);
+        db.execSQL(" DROP TABLE IF EXISTS "+DatabaseContract.FavoriteColumn.TABLE_TVSHOW);
         onCreate(db);
     }
 }

@@ -1,14 +1,18 @@
 package com.example.filmliburan.Preview.Main.Fragment.Favorite.FavoriteMovie;
 
 
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,25 +28,27 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.filmliburan.Data.Model.Movie;
+import com.example.filmliburan.Data.Source.Local.DatabaseContract;
 import com.example.filmliburan.Data.Source.Local.FavoriteHelper;
 import com.example.filmliburan.Data.Source.Local.LoadfavoriteCallback;
+import com.example.filmliburan.Data.Source.Local.MappingHelper;
 import com.example.filmliburan.Preview.Detail.DetailMovieActivity;
 import com.example.filmliburan.R;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
+import static com.example.filmliburan.Data.Source.Local.DatabaseContract.FavoriteColumn.CONTENT_URI;
 
-public class FavoriteMovie extends Fragment implements LoadfavoriteCallback {
+
+public class FavoriteMovie extends Fragment  {
 
     private RecyclerView recyclerView;
     private FavoriteMovieAdapter favoriteMovieAdapter;
-//    private static HandlerThread handlerThread;
-    private FavoriteHelper favoriteHelper;
-//    private DataObserver observer;
     private static final String EXTRA_STATE= "EXTRA_STATE";
     private ProgressBar progressBar;
     TextView textKosong;
+    ArrayList<Movie> movieList;
     View view;
 
 
@@ -51,6 +57,7 @@ public class FavoriteMovie extends Fragment implements LoadfavoriteCallback {
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -59,21 +66,17 @@ public class FavoriteMovie extends Fragment implements LoadfavoriteCallback {
         recyclerView= view.findViewById(R.id.recycler_favorite_movie);
         progressBar= view.findViewById(R.id.progressMovie);
         textKosong= view.findViewById(R.id.text_kosong);
+        movieList= new ArrayList<>();
+        tampilPengguna();
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setHasFixedSize(true);
-        favoriteMovieAdapter= new FavoriteMovieAdapter(getActivity());
-        favoriteMovieAdapter.getListMovie();
+        favoriteMovieAdapter= new FavoriteMovieAdapter(movieList);
         recyclerView.setAdapter(favoriteMovieAdapter);
-        favoriteHelper= FavoriteHelper.getInstace(getContext().getApplicationContext());
-        favoriteHelper.open();
-        if(savedInstanceState==null){
-            new LoadfavoriteAsnyc(favoriteHelper,this).execute();
+        if(movieList.size()==0){
+            textKosong.setVisibility(View.VISIBLE);
         }
         else{
-            ArrayList<Movie> list= savedInstanceState.getParcelableArrayList(EXTRA_STATE);
-            if(list!=null) {
-                favoriteMovieAdapter.setListMovie(list);
-            }
+            textKosong.setVisibility(View.GONE);
         }
         return view;
     }
@@ -84,81 +87,59 @@ public class FavoriteMovie extends Fragment implements LoadfavoriteCallback {
         IntentToDetail();
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        favoriteHelper.close();
+
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    private void tampilPengguna(){
+        String [] projection= {
+                DatabaseContract.FavoriteColumn._ID,
+                DatabaseContract.FavoriteColumn.JUDUL,
+                DatabaseContract.FavoriteColumn.DESKRIPSI,
+                DatabaseContract.FavoriteColumn.GAMBARPOPULE,
+                DatabaseContract.FavoriteColumn.POPULER,
+                DatabaseContract.FavoriteColumn.ORIGINALLANGUAGE,
+                DatabaseContract.FavoriteColumn.GENRE,
+                DatabaseContract.FavoriteColumn.RELEASEDATE,
+        };
+        Cursor movieCursor= getContext().getContentResolver().query(
+                CONTENT_URI,
+                projection,
+                null,
+                null,
+                null,
+                null
+        );
+        if(movieCursor!=null){
+            movieCursor.moveToFirst();
+        }
+        movieList= new ArrayList<>();
+        for (int i = 0; i <movieCursor.getCount() ; i++) {
+            int id= movieCursor.getInt(movieCursor.getColumnIndexOrThrow(DatabaseContract.FavoriteColumn._ID));
+            String judul= movieCursor.getString(movieCursor.getColumnIndexOrThrow(DatabaseContract.FavoriteColumn.JUDUL));
+            String deskripsi= movieCursor.getString(movieCursor.getColumnIndexOrThrow(DatabaseContract.FavoriteColumn.DESKRIPSI));
+            String gambarpopuler= movieCursor.getString(movieCursor.getColumnIndexOrThrow(DatabaseContract.FavoriteColumn.GAMBARPOPULE));
+            double populer= movieCursor.getDouble(movieCursor.getColumnIndexOrThrow(DatabaseContract.FavoriteColumn.POPULER));
+            String originallanguage= movieCursor.getString(movieCursor.getColumnIndexOrThrow(DatabaseContract.FavoriteColumn.ORIGINALLANGUAGE));
+            int genre= movieCursor.getInt(movieCursor.getColumnIndexOrThrow(DatabaseContract.FavoriteColumn.GENRE));
+            String releasedate= movieCursor.getString(movieCursor.getColumnIndexOrThrow(DatabaseContract.FavoriteColumn.RELEASEDATE));
+            movieList.add(new Movie(id,judul,deskripsi, gambarpopuler, populer, originallanguage, genre, releasedate));
+            movieCursor.moveToNext();
+        }
+        movieCursor.close();
     }
 
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        if(outState!=null) {
-            outState.putParcelableArrayList(EXTRA_STATE, favoriteMovieAdapter.getListMovie());
-        }
-    }
 
-    @Override
-    public void preExecute() {
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                progressBar.setVisibility(View.VISIBLE);
-            }
-        });
-        Log.d("FavoriteMovie", "preExecute: ");
-    }
-
-    @Override
-    public void postExecute(ArrayList<Movie> movie) {
-        progressBar.setVisibility(View.INVISIBLE);
-        favoriteMovieAdapter.setListMovie(movie);
-        if(movie.size()==0){
-            textKosong.setVisibility(View.VISIBLE);
-        }
-        else{
-            textKosong.setVisibility(View.GONE);
-        }
-        Log.d("FavoriteMovie", "postExecute: ");
-    }
-
-    private static class LoadfavoriteAsnyc extends AsyncTask<Void, Void, ArrayList<Movie>>{
-
-        private final WeakReference<LoadfavoriteCallback> weakCallback;
-        private final WeakReference<FavoriteHelper>favoriteHelper;
-        private LoadfavoriteAsnyc(FavoriteHelper favoriteHe, LoadfavoriteCallback callback){
-            favoriteHelper= new WeakReference<>(favoriteHe);
-            weakCallback= new WeakReference<>(callback);
-
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            weakCallback.get().preExecute();
-        }
-
-        @Override
-        protected ArrayList<Movie> doInBackground(Void... voids) {
-            return favoriteHelper.get().getAllFavoriteMovie();
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<Movie> movie) {
-            super.onPostExecute(movie);
-            weakCallback.get().postExecute(movie);
-        }
-    }
-
-    private void IntentToDetail(){
+    private void IntentToDetail() {
         favoriteMovieAdapter.setOnItemCallback(new FavoriteMovieAdapter.OnItemClickCallback() {
             @Override
             public void onItmCliked(Movie movie) {
-                Intent intent= new Intent(getActivity(), DetailMovieActivity.class);
+                Intent intent = new Intent(getActivity(), DetailMovieActivity.class);
                 intent.putExtra("film", movie);
+                Uri currentMovie= ContentUris.withAppendedId(CONTENT_URI, movie.getId());
+                intent.setData(currentMovie);
                 startActivity(intent);
             }
         });
     }
+
 
 }

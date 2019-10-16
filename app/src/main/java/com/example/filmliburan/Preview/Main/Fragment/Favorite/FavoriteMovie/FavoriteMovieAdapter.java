@@ -20,9 +20,11 @@ public class FavoriteMovieAdapter extends RecyclerView.Adapter<FavoriteMovieAdap
     ArrayList<Movie> list= new ArrayList<>();
     private Activity activity;
     private OnItemClickCallback onItemClickCallback;
-    public FavoriteMovieAdapter(Activity activity){
-        this.activity= activity;
+
+    public FavoriteMovieAdapter(ArrayList<Movie> list) {
+        this.list = list;
     }
+
     public ArrayList<Movie> getListMovie(){
         return list;
     }

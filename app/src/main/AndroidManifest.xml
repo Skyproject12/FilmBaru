@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.filmliburan">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <permission android:name="com.example.filmliburan.READ_DATABASE" android:protectionLevel="normal"/>
+    <permission android:name="com.example.filmliburan.WRITE_DATABASE" android:protectionLevel="normal"/>
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -9,14 +13,23 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Preview.Main.Fragment.Favorite.FavoriteFragment"></activity>
+        <provider
+            android:writePermission="com.example.filmliburan.WRITE_DATABASE"
+            android:name=".Data.Source.Local.NoteProvider"
+            android:authorities="com.example.filmliburan"
+            android:enabled="true"
+            android:exported="true"
+            android:readPermission="com.example.filmliburan.READ_DATABASE"/>
+
+        <activity android:name=".Preview.Main.Fragment.Favorite.FavoriteFragment" />
         <activity
             android:name=".Preview.Detail.DetailTvShowActivity"
             android:parentActivityName=".Preview.Main.MainActivity" />
         <activity
             android:name=".Preview.Detail.DetailMovieActivity"
             android:parentActivityName=".Preview.Main.MainActivity" />
-        <activity android:name=".Preview.Main.MainActivity"
+        <activity
+            android:name=".Preview.Main.MainActivity"
             android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,7 +38,5 @@
             </intent-filter>
         </activity>
     </application>
-
-    <uses-permission android:name="android.permission.INTERNET" />
 
 </manifest>

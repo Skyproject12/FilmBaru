@@ -1,7 +1,9 @@
 package com.example.filmliburan.Preview.Main.Fragment.Movies;
 
 
+import android.content.ContentUris;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -22,9 +24,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 
 import com.example.filmliburan.Data.Model.Movie;
+import com.example.filmliburan.Data.Source.Local.DatabaseContract;
 import com.example.filmliburan.Data.Source.Remote.Movies.MovieViewModel;
 import com.example.filmliburan.Preview.Detail.DetailMovieActivity;
 import com.example.filmliburan.R;
@@ -107,6 +111,8 @@ public class MoviesFragment extends Fragment {
                 String status="movie";
                 Intent intent= new Intent(getActivity(), DetailMovieActivity.class);
                 intent.putExtra("film",movie);
+                Uri currentMovie= ContentUris.withAppendedId(DatabaseContract.FavoriteColumn.CONTENT_URI, movie.getId());
+                intent.setData(currentMovie);
                 startActivity(intent);
             }
         });

@@ -19,6 +19,8 @@ import com.example.filmliburan.Preview.Main.MainActivity;
 import com.example.filmliburan.R;
 import com.squareup.picasso.Picasso;
 
+import static android.provider.BaseColumns._ID;
+import static com.example.filmliburan.Data.Source.Local.DatabaseContract.FavoriteColumn.CONTENT_URI;
 import static com.example.filmliburan.Data.Source.Local.DatabaseContract.FavoriteColumn.DESKRIPSI;
 import static com.example.filmliburan.Data.Source.Local.DatabaseContract.FavoriteColumn.GAMBARPOPULE;
 import static com.example.filmliburan.Data.Source.Local.DatabaseContract.FavoriteColumn.GENRE;
@@ -82,25 +84,30 @@ public class DetailTvShowActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        MenuItem menuItem= menu.findItem(R.id.favorite_detail);
-        switch (item.getItemId()){
+        MenuItem menuItem = menu.findItem(R.id.favorite_detail);
+        switch (item.getItemId()) {
             case R.id.favorite_detail:
-                if(favoriteHelper.getAllTvshowById(tvShow.getId())){
+                if (favoriteHelper.getAllTvshowById(tvShow.getId())) {
                     Toast.makeText(this, "delete", Toast.LENGTH_SHORT).show();
                     menuItem.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_starko));
-                    favoriteHelper.deleteFavoriteTvshow(tvShow.getId());
-                }else if(!favoriteHelper.getAllTvshowById(tvShow.getId())){
+                    //favoriteHelper.deleteFavoriteTvshow(tvShow.getId());
+                    //getContentResolver().delete(CONTENT_URI,_ID,tvShow.getId());
+                } else if (!favoriteHelper.getAllTvshowById(tvShow.getId())) {
                     Toast.makeText(this, "masuk", Toast.LENGTH_SHORT).show();
-                    menuItem.setIcon(ContextCompat.getDrawable(this,R.drawable.ic_star));
+                    menuItem.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_star));
                     favoriteHelper.insertFavoriteTvshow(tvShow);
                 }
                 break;
             case R.id.home:
-                Intent intent= new  Intent(DetailTvShowActivity.this, MainActivity.class);
+                Intent intent = new Intent(DetailTvShowActivity.this, MainActivity.class);
                 startActivity(intent);
             default:
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void getFilm(){
+
     }
 }

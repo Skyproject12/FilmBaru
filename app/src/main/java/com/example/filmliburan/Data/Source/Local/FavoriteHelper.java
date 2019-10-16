@@ -20,9 +20,8 @@ import static com.example.filmliburan.Data.Source.Local.DatabaseContract.Favorit
 import static com.example.filmliburan.Data.Source.Local.DatabaseContract.FavoriteColumn.ORIGINALLANGUAGE;
 import static com.example.filmliburan.Data.Source.Local.DatabaseContract.FavoriteColumn.POPULER;
 import static com.example.filmliburan.Data.Source.Local.DatabaseContract.FavoriteColumn.RELEASEDATE;
-import static com.example.filmliburan.Data.Source.Local.DatabaseContract.TABLE_MOVIE;
-//import static com.example.filmliburan.Data.Source.Local.DatabaseContract.TABLE_NAME;
-import static com.example.filmliburan.Data.Source.Local.DatabaseContract.TABLE_TVSHOW;
+import static com.example.filmliburan.Data.Source.Local.DatabaseContract.FavoriteColumn.TABLE_MOVIE;
+import static com.example.filmliburan.Data.Source.Local.DatabaseContract.FavoriteColumn.TABLE_TVSHOW;
 
 public class FavoriteHelper {
     private static final String DATABASE_MOVIE= TABLE_MOVIE;
@@ -202,5 +201,40 @@ public class FavoriteHelper {
         cursor.close();
         return Favorite;
     }
+
+    public int deleteById(String id){
+        return database.delete(DATABASE_MOVIE, _ID+ " = ?", new String[]{id});
+
+    }
+
+    public long insert(ContentValues values) {
+        return database.insert(DATABASE_MOVIE, null, values);
+
+    }
+
+    public int update(String id, ContentValues values){
+        return  database.update(DATABASE_MOVIE, values, _ID+ " = ? ", new String[]{id});
+
+    }
+
+    public Cursor queryAll(){
+        return database.query(DATABASE_MOVIE,
+                null,
+                null,
+                null,
+                null,
+                null,
+                _ID + " DESC ");
+    }
+
+    public Cursor queryById(String id){
+        return database.query(DATABASE_MOVIE, null
+        , _ID+ " = ? "
+        , new String []{id}
+        , null
+        , null
+        , null);
+    }
+
 
 }
